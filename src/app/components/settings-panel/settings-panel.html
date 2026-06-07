@@ -1,0 +1,109 @@
+<aside class="settings">
+
+  <header class="settings__header">
+    <div class="settings__logo">
+      <span class="logo-mark">&#9632;</span>
+      <div>
+        <div class="logo-title">BOXWRIGHT</div>
+        <div class="logo-sub">Joint Designer</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="settings__body">
+
+    <section class="section">
+      <div class="section__label">DIMENSIONS</div>
+      <div class="field">
+        <label class="field__label">Width</label>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" [(ngModel)]="width"
+                 min="10" max="2000" (ngModelChange)="emit()" />
+          <span class="field__unit">mm</span>
+        </div>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" [(ngModel)]="fingersW"
+                 min="3" max="99" step="2" (ngModelChange)="snapFingers('fingersW')" />
+          <span class="field__unit">f</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label">Height</label>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" [(ngModel)]="height"
+                 min="10" max="2000" (ngModelChange)="emit()" />
+          <span class="field__unit">mm</span>
+        </div>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" [(ngModel)]="fingersH"
+                 min="3" max="99" step="2" (ngModelChange)="snapFingers('fingersH')" />
+          <span class="field__unit">f</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label">Depth</label>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" [(ngModel)]="depth"
+                 min="10" max="2000" (ngModelChange)="emit()" />
+          <span class="field__unit">mm</span>
+        </div>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" [(ngModel)]="fingersD"
+                 min="3" max="99" step="2" (ngModelChange)="snapFingers('fingersD')" />
+          <span class="field__unit">f</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section">
+      <div class="section__label">MATERIAL</div>
+      <div class="field">
+        <label class="field__label">Thickness</label>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" [(ngModel)]="thickness"
+                 min="1" max="50" step="0.5" (ngModelChange)="emit()" />
+          <span class="field__unit">mm</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label">Bit Diameter</label>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" [(ngModel)]="bitDiameter"
+                 min="0.5" max="25" step="0.5" (ngModelChange)="emit()" />
+          <span class="field__unit">mm</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label">Tolerance</label>
+        <div class="field__input-wrap">
+          <input class="field__input" type="number" [(ngModel)]="tolerance"
+                 min="0" max="10" step="0.05" (ngModelChange)="emit()" />
+          <span class="field__unit">mm</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="section">
+      <div class="toggle-row">
+        <span class="field__label">Include Lid</span>
+        <button class="toggle" [class.toggle--on]="includeLid"
+                (click)="includeLid = !includeLid; emit()">
+          <span class="toggle__knob"></span>
+        </button>
+      </div>
+      <div class="toggle-row">
+        <span class="field__label">Include Base</span>
+        <button class="toggle" [class.toggle--on]="includeBase"
+                (click)="includeBase = !includeBase; emit()">
+          <span class="toggle__knob"></span>
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+</aside>

@@ -1,0 +1,10 @@
+<div class="host-wrap">
+  <canvas #canvas class="viewport"></canvas>
+  <div class="explode-control">
+    <label class="explode-label">EXPLODE</label>
+    <input class="explode-slider" type="range"
+           [(ngModel)]="explodeValue"
+           (ngModelChange)="onExplode()"
+           min="0" max="200" step="1" />
+  </div>
+</div>

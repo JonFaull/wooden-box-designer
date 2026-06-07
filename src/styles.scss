@@ -1,1 +1,31 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg: #f2f3f7;
+  --surface: #ffffff;
+  --surface-2: #f8f9fc;
+  --border: #e2e4ec;
+  --accent: #4f6ef7;
+  --accent-light: #eef0fe;
+  --accent-dark: #3451d1;
+  --text-primary: #0f1117;
+  --text-muted: #6b7280;
+  --text-dim: #adb5bd;
+  --input-bg: #f8f9fc;
+  --input-border: #e2e4ec;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Geist', sans-serif;
+}

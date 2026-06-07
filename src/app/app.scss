@@ -1,0 +1,140 @@
+.app-shell {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.viewport-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.viewport-3d {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  border-bottom: 1px solid var(--border);
+
+  app-box-canvas {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.viewport-2d {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+
+  app-box-canvas-flat {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.divider-handle {
+  height: 8px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+
+  &:hover .divider-line {
+    background: var(--accent);
+  }
+}
+
+.divider-line {
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.15s;
+}
+
+.viewport-3d {
+  position: relative;
+}
+
+.view-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+
+  button {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    font-family: 'Geist', sans-serif;
+    font-size: 0.7rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+
+    &:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  }
+}
+
+.viewport-3d {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-height: 0;
+
+  app-box-canvas-simple {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.explode-control {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+}
+
+.explode-label {
+  font-family: 'Geist', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}
+
+.explode-slider {
+  width: 160px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.viewport-3d {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-height: 0;
+
+  app-box-canvas-simple {
+    flex: 1;
+    min-width: 0;
+  }
+}

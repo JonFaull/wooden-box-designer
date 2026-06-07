@@ -1,0 +1,75 @@
+.flat-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Geist', sans-serif;
+}
+
+.panels-scroll {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 16px;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+}
+
+.panels-row {
+  display: flex;
+  gap: 16px;
+  height: 100%;
+  align-items: stretch;
+}
+
+.panel-card {
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.panel-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #111;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.panel-dims {
+  font-size: 0.7rem;
+  color: #6b7280;
+  font-family: 'Geist Mono', monospace;
+  flex-shrink: 0;
+}
+
+.panel-svg {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  width: auto;
+  height: 100%;
+}

@@ -1,0 +1,117 @@
+<div class="flat-root">
+  <div class="controls">
+    <div class="control-row">
+      <div class="control-group">
+        <label>Width</label>
+        <input type="number" [(ngModel)]="width" (ngModelChange)="onChange()" min="50" />
+      </div>
+      <div class="control-group">
+        <label>Height</label>
+        <input type="number" [(ngModel)]="height" (ngModelChange)="onChange()" min="50" />
+      </div>
+      <div class="control-group">
+        <label>Depth</label>
+        <input type="number" [(ngModel)]="depth" (ngModelChange)="onChange()" min="50" />
+      </div>
+      <div class="control-group">
+        <label>Thickness</label>
+        <input type="number" [(ngModel)]="thickness" (ngModelChange)="onChange()" min="3" />
+      </div>
+      <div class="control-group">
+        <label>Bit Ø</label>
+        <input type="number" [(ngModel)]="bitDiameter" (ngModelChange)="onChange()" min="1" />
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="control-group">
+        <label>Fingers W</label>
+        <input type="number" [(ngModel)]="fingersW" (ngModelChange)="onChange()" min="2" />
+      </div>
+      <div class="control-group">
+        <label>Fingers H</label>
+        <input type="number" [(ngModel)]="fingersH" (ngModelChange)="onChange()" min="2" />
+      </div>
+      <div class="control-group">
+        <label>Fingers D</label>
+        <input type="number" [(ngModel)]="fingersD" (ngModelChange)="onChange()" min="2" />
+      </div>
+      <div class="control-group checkbox">
+        <label>Base</label>
+        <input type="checkbox" [(ngModel)]="includeBase" (ngModelChange)="onChange()" />
+      </div>
+      <div class="control-group checkbox">
+        <label>Lid</label>
+        <input type="checkbox" [(ngModel)]="includeLid" (ngModelChange)="onChange()" />
+      </div>
+    </div>
+  </div>
+
+  <div class="panels-scroll">
+    <div class="panels-row">
+      @for (panel of panels; track panel.label; let idx = $index) {
+      <div class="panel-card">
+        <div class="panel-label">{{ panel.label }}</div>
+        <div class="panel-dims">{{ panel.w }}mm × {{ panel.h }}mm</div>
+        <svg class="panel-svg"
+             [attr.viewBox]="getViewBox(panel)"
+             preserveAspectRatio="xMidYMid meet"
+             [style.height.px]="getSvgHeight(panel)"
+             [style.width]="'auto'">
+          <path [attr.d]="panelPaths[idx]"
+                fill="#f0f0f0"
+                stroke="#4f6ef7"
+                stroke-width="1"
+                stroke-linejoin="round" />
+        </svg>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+
+<!--<div class="canvas-flat-host">
+  <div class="canvas-scroll">
+    <div class="canvas-flat">
+      @for (panel of panels; track panel.label; let idx = $index) {
+      <div class="panel-wrap">
+        <div class="panel-label">{{ panel.label }}</div>
+        <div class="panel-dims">
+          {{ panel.tabsOnWidth ? panel.w + panel.t * 2 : panel.w }}mm × {{ panel.h }}mm
+        </div>
+        <svg class="panel-svg"
+             [attr.viewBox]="getViewBox(panel)"
+             preserveAspectRatio="xMidYMid meet"
+             [style.height.px]="getSvgHeight(panel)"
+             [style.width]="'auto'">
+
+          <path [attr.d]="panelPaths[idx]"
+                fill="#f0f0f0"
+                stroke="#4f6ef7"
+                stroke-width="0.5"
+                stroke-linejoin="round" />
+
+          <line [attr.x1]="0" [attr.y1]="-panel.t * 1.5"
+                [attr.x2]="panel.w" [attr.y2]="-panel.t * 1.5"
+                stroke="#aab" stroke-width="0.5" stroke-dasharray="3,3" />
+          <text [attr.x]="panel.w / 2" [attr.y]="-panel.t * 2"
+                text-anchor="middle" font-size="6" fill="#6b7280">
+            {{ panel.tabsOnWidth ? panel.w + panel.t * 2 : panel.w }}mm
+          </text>
+
+          <line [attr.x1]="-panel.t * 1.5" [attr.y1]="0"
+                [attr.x2]="-panel.t * 1.5" [attr.y2]="panel.h"
+                stroke="#aab" stroke-width="0.5" stroke-dasharray="3,3" />
+          <text [attr.x]="-panel.t * 2.5" [attr.y]="panel.h / 2"
+                text-anchor="middle" font-size="6" fill="#6b7280"
+                [attr.transform]="'rotate(-90,' + (-panel.t * 2.5) + ',' + (panel.h / 2) + ')'">
+            {{ panel.h }}mm
+          </text>
+
+        </svg>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+-->

@@ -1,0 +1,49 @@
+<div class="flat-root">
+  <div class="panels-scroll">
+    <div class="panels-row">
+      @for (panel of panels; track panel.label; let idx = $index) {
+      <div class="panel-card">
+        <div class="panel-label">{{ panel.label }}</div>
+        <div class="panel-dims">{{ panel.w }}mm × {{ panel.h }}mm</div>
+        <svg class="panel-svg"
+             [attr.viewBox]="getViewBox(panel)"
+             preserveAspectRatio="xMidYMid meet">
+          <path [attr.d]="panelPaths[idx]"
+                fill="#f0f0f0"
+                stroke="#4f6ef7"
+                stroke-width="1"
+                stroke-linejoin="round" />
+
+          <!-- Width dimension line -->
+          <line [attr.x1]="0" [attr.y1]="panel.h + panel.t * 1.5"
+                [attr.x2]="panel.w" [attr.y2]="panel.h + panel.t * 1.5"
+                stroke="#888" stroke-width="0.5"/>
+          <line [attr.x1]="0" [attr.y1]="panel.h + panel.t"
+                [attr.x2]="0" [attr.y2]="panel.h + panel.t * 2"
+                stroke="#888" stroke-width="0.5"/>
+          <line [attr.x1]="panel.w" [attr.y1]="panel.h + panel.t"
+                [attr.x2]="panel.w" [attr.y2]="panel.h + panel.t * 2"
+                stroke="#888" stroke-width="0.5"/>
+          <text [attr.x]="panel.w / 2" [attr.y]="panel.h + panel.t * 2.5"
+                text-anchor="middle" font-size="8" fill="#555">{{ panel.w }}mm</text>
+
+          <!-- Height dimension line -->
+          <line [attr.x1]="panel.w + panel.t * 1.5" [attr.y1]="0"
+                [attr.x2]="panel.w + panel.t * 1.5" [attr.y2]="panel.h"
+                stroke="#888" stroke-width="0.5"/>
+          <line [attr.x1]="panel.w + panel.t" [attr.y1]="0"
+                [attr.x2]="panel.w + panel.t * 2" [attr.y2]="0"
+                stroke="#888" stroke-width="0.5"/>
+          <line [attr.x1]="panel.w + panel.t" [attr.y1]="panel.h"
+                [attr.x2]="panel.w + panel.t * 2" [attr.y2]="panel.h"
+                stroke="#888" stroke-width="0.5"/>
+          <text [attr.x]="panel.w + panel.t * 3" [attr.y]="panel.h / 2"
+                text-anchor="middle" font-size="8" fill="#555"
+                [attr.transform]="'rotate(90,' + (panel.w + panel.t * 3) + ',' + (panel.h / 2) + ')'">{{ panel.h }}mm</text>
+
+        </svg>
+      </div>
+      }
+    </div>
+  </div>
+</div>
