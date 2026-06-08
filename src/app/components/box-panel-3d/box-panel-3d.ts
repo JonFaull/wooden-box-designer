@@ -170,35 +170,18 @@ const mesh = new THREE.Mesh(geo, [faceMaterial, endMaterial, endMaterial]);
 
       mesh.castShadow = mesh.receiveShadow = true;
 
-      const edges = new THREE.EdgesGeometry(geo, 80);
+      const edges = new THREE.EdgesGeometry(geo, 85);
        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x4f6ef7 }));
 
       const group = new THREE.Group();
       group.add(mesh);
      group.add(line);
 
-      const markerGeo = new THREE.SphereGeometry(3, 8, 8);
-      const markerMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-      const marker = new THREE.Mesh(markerGeo, markerMat);
-      marker.position.set(0, panel.t, 0);
-      group.add(marker);
-
-      const marker2 = new THREE.Mesh(
-        new THREE.SphereGeometry(3, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0xffffff })
-      );
-      marker2.position.set(panel.w, panel.t, 0);
-      group.add(marker2);
-
-      const marker3 = new THREE.Mesh(
-        new THREE.SphereGeometry(3, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0x0000ff })
-      );
-      marker3.position.set(panel.w, panel.h, 0);
-      group.add(marker3);
+      
 
       const labelPos = new THREE.Vector3(panel.w / 2, panel.h / 2, panel.t + 1);
-      this.addLabel(panel.label, labelPos, group);
+      // this.addLabel(panel.label, labelPos, group);
+      this.addSurfaceLabel(panel.label, labelPos, group, panel.t, panel.label);
 
       this.positionPanel(panel, group, W, H, D);
       this.boxGroup.add(group);
@@ -431,4 +414,58 @@ case 'LID':
       }
     }
   }
+
+private addSurfaceLabel(text: string, pos: THREE.Vector3, parent: THREE.Group, thickness: number, label: string) {
+ const canvas = document.createElement('canvas');
+canvas.width = 512;
+canvas.height = 128;
+const ctx = canvas.getContext('2d')!;
+ctx.fillStyle = 'rgba(0,0,0,0)';
+ctx.fillRect(0, 0, 512, 128);
+ctx.fillStyle = 'rgba(0,0,0,0.8)';
+ctx.font = 'bold 64px sans-serif';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillText(text, 256, 64);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const mat = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+
+  if (label === 'BASE' || label === 'LID') {
+    const top = new THREE.Mesh(new THREE.PlaneGeometry(100, 25), mat);
+  top.position.copy(pos);
+  top.position.z = thickness + 0.5;
+  // top.rotation.x = label === 'LID' ? Math.PI / 2 -45: -Math.PI / 2;
+  // top.rotation.y = label === 'LID' ? Math.PI / 2 -45: -Math.PI / 2;
+  parent.add(top);
+
+  const bottom = new THREE.Mesh(new THREE.PlaneGeometry(100, 25), mat);
+  bottom.position.copy(pos);
+  bottom.position.z = -0.5;
+  bottom.rotation.x = Math.PI;
+  bottom.rotation.z = label === 'BASE' ? Math.PI : 0;
+  // // bottom.rotation.x = label === 'LID' ? -Math.PI / 2 + 90: Math.PI / 2;
+  //    bottom.rotation.x = label === 'LID' ? 180: Math.PI / 2;
+  
+  parent.add(bottom);
+  } else {
+    const front = new THREE.Mesh(new THREE.PlaneGeometry(100, 25), mat);
+    front.position.copy(pos);
+    front.position.z = thickness + 0.5;
+    front.rotation.z = Math.PI;
+    parent.add(front);
+
+    const back = new THREE.Mesh(new THREE.PlaneGeometry(100, 25), mat);
+    back.position.copy(pos);
+    back.position.z = -0.5;
+    back.rotation.y = Math.PI;
+    back.rotation.z = Math.PI;
+    parent.add(back);
+  }
+}
 }
