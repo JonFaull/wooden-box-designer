@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PanelGeometryService, PanelData } from '../../services/panel-geometry';
 import { SettingsService } from '../../services/settings.service';
-
+import paper from 'paper';
 
 interface Panel {
   label: string;
@@ -77,7 +77,7 @@ export class BoxPanelFlatComponent implements OnInit {
 
 
 
-    // this.panelPaths = this.panels.map(p => this.getPanelPath(p));
+    //this.panelPaths = this.panels.map(p => this.getPanelPath(p));
     this.panelPaths = this.panels.map(p => this.addDogbones(this.getPanelPath(p), p));
 
     const panelData: PanelData[] = this.panels.map((p, i) => ({
@@ -102,6 +102,8 @@ export class BoxPanelFlatComponent implements OnInit {
   private getPanelPath(panel: Panel): string {
     const { w, h, t, label } = panel;
 
+    const r = this.bitDiameter / 2;
+
     if (label === 'FRONT' || label === 'BACK') {
       const total = this.fingersW;
       const totalH = this.fingersH;
@@ -112,9 +114,6 @@ export class BoxPanelFlatComponent implements OnInit {
 
       let d = this.includeLid ? `M 0 ${t}` : `M 0 0`;
 
-
-
-      // Top edge (left → right) — fingers stick up
       if (this.includeLid) {
         let cursor = 0;
         for (let i = 0; i < total; i++) {
@@ -122,13 +121,43 @@ export class BoxPanelFlatComponent implements OnInit {
             d += ` L ${cursor} ${t} L ${cursor} 0 L ${cursor + fw} 0 L ${cursor + fw} ${t}`;
             cursor += fw + tol;
           } else {
+            // const slotLeft = cursor - tol;
+            // const slotRight = cursor + fw + tol;
+
+            // // Left dogbone — enter top, sweep 270°, exit right
+            // const leftCx = slotLeft;
+            // d += ` L ${leftCx} ${t - r - 0.5}`;
+            // d += this.arcAround(leftCx, t, r, 'bottom');
+
+            // // slot floor — straight across
+            // d += ` L ${slotRight - r} ${t}`;
+
+            // Right dogbone — enter left, sweep 270°, exit top
+            // const rightCx = slotRight;
+            // d += this.arcAround(rightCx, t, r, 'bottom-right');
+            // d += ` L ${rightCx} ${t - r}`;
+
             cursor += fw + tol;
           }
         }
         d += ` L ${w} ${t}`;
-      } else {
-        d += ` L ${w} 0`;
       }
+
+      // Top edge (left → right) — fingers stick up
+      // if (this.includeLid) {
+      //   let cursor = 0;
+      //   for (let i = 0; i < total; i++) {
+      //     if (i % 2 === 0) {
+      //       d += ` L ${cursor} ${t} L ${cursor} 0 L ${cursor + fw} 0 L ${cursor + fw} ${t}`;
+      //       cursor += fw + tol;
+      //     } else {
+      //       cursor += fw + tol;
+      //     }
+      //   }
+      //   d += ` L ${w} ${t}`;
+      // } else {
+      //   d += ` L ${w} 0`;
+      // }
 
       // Right edge (top → bottom) — slots zigzag inward
       // Right edge (top → bottom) — slots zigzag inward
@@ -344,21 +373,33 @@ export class BoxPanelFlatComponent implements OnInit {
     return 200;
   }
 
-private circlePath(cx: number, cy: number, r: number): string {
-  const k = 0.5523;
-  return `M ${cx + r} ${cy} ` +
-    `C ${cx + r} ${cy + k * r} ${cx + k * r} ${cy + r} ${cx} ${cy + r} ` +
-    `C ${cx - k * r} ${cy + r} ${cx - r} ${cy + k * r} ${cx - r} ${cy} ` +
-    `C ${cx - r} ${cy - k * r} ${cx - k * r} ${cy - r} ${cx} ${cy - r} ` +
-    `C ${cx + k * r} ${cy - r} ${cx + r} ${cy - k * r} ${cx + r} ${cy} Z`;
-}
-
+  private circlePath(cx: number, cy: number, r: number): string {
+    const k = 0.5523;
+    return `M ${cx + r} ${cy} ` +
+      `C ${cx + r} ${cy - k * r} ${cx + k * r} ${cy - r} ${cx} ${cy - r} ` +
+      `C ${cx - k * r} ${cy - r} ${cx - r} ${cy - k * r} ${cx - r} ${cy} ` +
+      `C ${cx - r} ${cy + k * r} ${cx - k * r} ${cy + r} ${cx} ${cy + r} ` +
+      `C ${cx + k * r} ${cy + r} ${cx + r} ${cy + k * r} ${cx + r} ${cy} Z`;
+  }
   private addDogbones(pathData: string, panel: Panel): string {
     const { w, h, t, label } = panel;
     const r = this.bitDiameter / 2;
-    console.log('ss bitDiameter:', this.bitDiameter, 'r:', r);
-    console.log('ssextra paths:', pathData.length);
-    let extra = '';
+
+    // Set up paper.js with a canvas
+    const canvas = document.createElement('canvas');
+    paper.setup(canvas);
+
+    // Create main path
+    const mainPath = new paper.Path(pathData);
+    mainPath.closePath();
+
+    let result = mainPath;
+
+    const subtractCircle = (cx: number, cy: number) => {
+      const circle = new paper.Path.Circle(new paper.Point(cx, cy), r);
+      result = result.subtract(circle) as paper.Path;
+      circle.remove();
+    };
 
     if (label === 'FRONT' || label === 'BACK') {
       const total = this.fingersW;
@@ -366,26 +407,26 @@ private circlePath(cx: number, cy: number, r: number): string {
       const tol = this.tolerance;
       const fw = (w - (total - 1) * tol) / total;
       const fh = (h - (totalH - 1) * tol) / totalH;
-// Top edge dogbones
-if (this.includeLid) {
-  let cursor = 0;
-  for (let i = 0; i < total; i++) {
-    if (i % 2 !== 0) {
-      extra += ` ` + this.circlePath(cursor - tol, t, r);
-      if (i !== total - 1) extra += ` ` + this.circlePath(cursor + fw + tol, t, r);
-    }
-    cursor += fw + tol;
-  }
-}
+      const offset = (r / Math.sqrt(2)) - (r * 0.03);
+
+      // Top edge dogbones
+      if (this.includeLid) {
+        let cursor = 0;
+        for (let i = 0; i < total; i++) {
+          if (i % 2 !== 0) {
+            subtractCircle(cursor - tol + offset, t - offset);
+            if (i !== total - 1) subtractCircle(cursor + fw + tol - offset, t - offset);
+          }
+          cursor += fw + tol;
+        }
+      }
 
       // Right edge dogbones
       let cursorRight = 0;
       for (let i = 0; i < totalH; i++) {
         if (i % 2 !== 0) {
-          const slotStart = cursorRight - tol;
-          const slotEnd = cursorRight + fh + tol;
-          extra += ` ` + this.circlePath(w - t, slotStart, r);
-          extra += ` ` + this.circlePath(w - t, slotEnd, r);
+          subtractCircle(w - t + offset, cursorRight - tol + offset);
+          subtractCircle(w - t + offset, cursorRight + fh + tol - offset);
         }
         cursorRight += fh + tol;
       }
@@ -394,16 +435,199 @@ if (this.includeLid) {
       let cursorLeft = h;
       for (let i = 0; i < totalH; i++) {
         if (i % 2 !== 0) {
-          const slotStart = cursorLeft + tol;
-          const slotEnd = cursorLeft - fh - tol;
-          extra += ` ` + this.circlePath(t, slotStart, r);
-          extra += ` ` + this.circlePath(t, slotEnd, r);
+          subtractCircle(t - offset, cursorLeft + tol - offset);
+          subtractCircle(t - offset, cursorLeft - fh - tol + offset);
         }
         cursorLeft -= fh + tol;
       }
+
+      if (this.includeBase) {
+        let cursorBase = w;
+        for (let i = 0; i < total; i++) {
+          if (i % 2 !== 0) {
+            subtractCircle(cursorBase + tol - offset, h - t + offset);
+            subtractCircle(cursorBase - fw - tol + offset, h - t + offset);
+          }
+          cursorBase -= fw + tol;
+        }
+      }
+
     }
 
-    return pathData + extra;
+    if (label === 'BASE' || label === 'LID') {
+      const total = this.fingersW;
+      const totalD = this.fingersD;
+      const tol = this.tolerance;
+      const fw = (w + t + t - (total - 1) * tol) / total;
+      const fd = (h - (totalD - 1) * tol) / totalD;
+      const offset = (r / Math.sqrt(2)) - (r * 0.03);
+
+      // Front edge dogbones
+      let cursor = 0;
+      for (let i = 0; i < total; i++) {
+        const fingerW = (i === 0 || i === total - 1) ? fw - t : fw;
+        if (i % 2 === 0) {
+          if (i === 0) {
+            subtractCircle(cursor + fingerW - offset, t - offset);
+          } else if (i === total - 1) {
+            subtractCircle(cursor + offset, t - offset);
+          } else {
+            subtractCircle(cursor + offset, t - offset);
+            subtractCircle(cursor + fingerW - offset, t - offset);
+          }
+        }
+        cursor += fingerW + tol;
+      }
+
+      // Back edge dogbones
+      let cursorBack = w;
+      for (let i = 0; i < total; i++) {
+        const fingerW = (i === 0 || i === total - 1) ? fw - t : fw;
+        if (i % 2 === 0) {
+          if (i === 0) {
+            subtractCircle(cursorBack - fingerW + offset, h - t + offset);
+          } else if (i === total - 1) {
+            subtractCircle(cursorBack - offset, h - t + offset);
+          } else {
+            subtractCircle(cursorBack - offset, h - t + offset);
+            subtractCircle(cursorBack - fingerW + offset, h - t + offset);
+          }
+        }
+        cursorBack -= fingerW + tol;
+      }
+
+      // Right edge dogbones
+      // Right edge dogbones
+      let cursorRight = t;
+      for (let i = 0; i < totalD; i++) {
+        const slotLen = (i === 0 || i === totalD - 1) ? fd - t : fd;
+        if (i % 2 !== 0) {
+          if (i === 0) {
+            subtractCircle(w + offset, cursorRight + slotLen + offset);
+          } else if (i === totalD - 1) {
+            subtractCircle(w + offset, cursorRight - offset);
+          } else {
+            subtractCircle(w + offset, cursorRight - offset);
+            subtractCircle(w + offset, cursorRight + slotLen + offset);
+          }
+        }
+        cursorRight += slotLen + tol;
+      }
+
+      // Left edge dogbones
+      let cursorLeft = h - t;
+      for (let i = 0; i < totalD; i++) {
+        const slotLen = (i === 0 || i === totalD - 1) ? fd - t : fd;
+        if (i % 2 !== 0) {
+          if (i === 0) {
+            subtractCircle(-offset, cursorLeft - slotLen - offset);
+          } else if (i === totalD - 1) {
+            subtractCircle(-offset, cursorLeft + offset);
+          } else {
+            subtractCircle(-offset, cursorLeft + offset);
+            subtractCircle(-offset, cursorLeft - slotLen - offset);
+          }
+        }
+        cursorLeft -= slotLen + tol;
+      }
+
+    }
+
+    if (label === 'LEFT SIDE' || label === 'RIGHT SIDE') {
+  const totalD = this.fingersD;
+  const totalH = this.fingersH;
+  const tol = this.tolerance;
+  const fd = (w + t + t - (totalD - 1) * tol) / totalD;
+  const fh = (h + t + t - (totalH - 1) * tol) / totalH;
+  const offset = (r / Math.sqrt(2)) - (r * 0.03);
+
+ // Top edge dogbones
+if (this.includeLid) {
+  let cursor = 0;
+  for (let i = 0; i < totalD; i++) {
+    const fingerW = (i === 0 || i === totalD - 1) ? fd - t : fd;
+    if (i % 2 !== 0) {
+      subtractCircle(cursor + offset, -offset);
+      subtractCircle(cursor + fingerW - offset, -offset);
+    }
+    cursor += fingerW + tol;
+  }
+}
+
+// Bottom edge dogbones
+if (this.includeBase) {
+  let cursorBase = w;
+  for (let i = 0; i < totalD; i++) {
+    const fingerW = (i === 0 || i === totalD - 1) ? fd - t : fd;
+    if (i % 2 !== 0) {
+      subtractCircle(cursorBase - offset, h + offset);
+      subtractCircle(cursorBase - fingerW + offset, h + offset);
+    }
+    cursorBase -= fingerW + tol;
+  }
+}
+
+// Right edge dogbones
+{
+  let cursorRight = -t;
+  for (let i = 0; i < totalH; i++) {
+    if (i % 2 !== 0) {
+      subtractCircle(w + offset, cursorRight - offset);
+      subtractCircle(w + offset, cursorRight + fh + offset);
+    }
+    cursorRight += fh + tol;
+  }
+}
+
+// Left edge dogbones
+// Left edge dogbones
+{
+  let cursorLeft = h + t;
+  for (let i = 0; i < totalH; i++) {
+    if (i % 2 !== 0) {
+      subtractCircle(-offset, cursorLeft + offset);
+      subtractCircle(-offset, cursorLeft - fh - offset);
+    }
+    cursorLeft -= fh + tol;
+  }
+}
+}
+
+    const resultPath = result.pathData;
+    paper.project.clear();
+    return resultPath;
+  }
+
+  private arcAround(cx: number, cy: number, r: number, side: 'bottom' | 'bottom-right' | 'top' | 'left' | 'right'): string {
+    const k = 0.5523;
+
+    if (side === 'bottom') {
+      // 270° starting from top: top → left → bottom → right
+      return ` C ${cx - k * r} ${cy - r} ${cx - r} ${cy - k * r} ${cx - r} ${cy}` +
+        ` C ${cx - r} ${cy + k * r} ${cx - k * r} ${cy + r} ${cx} ${cy + r}` +
+        ` C ${cx + k * r} ${cy + r} ${cx + r} ${cy + k * r} ${cx + r} ${cy}`;
+    }
+
+    if (side === 'bottom-right') {
+      // 270° starting from left: left → bottom → right → top
+      return ` C ${cx - r} ${cy + k * r} ${cx - k * r} ${cy + r} ${cx} ${cy + r}` +
+        ` C ${cx + k * r} ${cy + r} ${cx + r} ${cy + k * r} ${cx + r} ${cy}` +
+        ` C ${cx + r} ${cy - k * r} ${cx + k * r} ${cy - r} ${cx} ${cy - r}`;
+    }
+
+    if (side === 'top') {
+      return ` C ${cx - r} ${cy - k * r} ${cx - k * r} ${cy - r} ${cx} ${cy - r}` +
+        ` C ${cx + k * r} ${cy - r} ${cx + r} ${cy - k * r} ${cx + r} ${cy}`;
+    }
+    if (side === 'left') {
+      return ` C ${cx - k * r} ${cy - r} ${cx - r} ${cy - k * r} ${cx - r} ${cy}` +
+        ` C ${cx - r} ${cy + k * r} ${cx - k * r} ${cy + r} ${cx} ${cy + r}`;
+    }
+    if (side === 'right') {
+      return ` C ${cx + k * r} ${cy - r} ${cx + r} ${cy - k * r} ${cx + r} ${cy}` +
+        ` C ${cx + r} ${cy + k * r} ${cx + k * r} ${cy + r} ${cx} ${cy + r}`;
+    }
+    return '';
   }
 
 }
